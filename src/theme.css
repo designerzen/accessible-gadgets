@@ -1,0 +1,33 @@
+/* Shared public theme tokens. Override on :root or a widget's ancestor.
+   The default palette is achromatic; optional accents should use OKLCH. */
+:root {
+  color-scheme: light;
+  --ag-background: oklch(100% 0 0);
+  --ag-surface: oklch(100% 0 0);
+  --ag-surface-muted: oklch(97% 0 0);
+  --ag-text: oklch(0% 0 0);
+  --ag-text-muted: oklch(40% 0 0);
+  --ag-border: oklch(85% 0 0);
+  --ag-control-border: oklch(58% 0 0);
+  --ag-track: oklch(89% 0 0);
+  --ag-accent: oklch(0% 0 0);
+  --ag-on-accent: oklch(100% 0 0);
+  /* Optional overrides: --ag-accent-hover, --ag-accent-soft, --ag-focus,
+     --ag-feedback-ring. Their defaults are calculated where consumed so
+     scoped accent overrides also update the derived colors. */
+  --ag-error: var(--ag-text);
+  --ag-shadow: oklch(0% 0 0 / 12%);
+  --ag-font-body: 'DM Sans', system-ui, sans-serif;
+  --ag-font-heading: 'Manrope', system-ui, sans-serif;
+  --ag-font-display: Georgia, serif;
+  --ag-font-mono: ui-monospace, monospace;
+  --ag-radius-small: 4px;
+  --ag-radius-control: 8px;
+  --ag-radius-card: 14px;
+  --ag-radius-round: 999px;
+  --ag-target-size: 44px;
+  --ag-step-size: 46px;
+  --ag-control-font-size: 1rem;
+  --ag-focus-width: 3px;
+  --ag-focus-offset: 5px;
+}

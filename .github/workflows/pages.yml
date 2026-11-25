@@ -1,0 +1,103 @@
+name: Test and deploy component pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v6.1.1
+        with:
+          cache: true
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Test interactions, audio and accessibility
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/development
+        run: pnpm test --reporter=line,html
+      - name: Build all pages
+        run: pnpm build
+      - name: Test built pages at the repository subpath
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/production
+        run: pnpm test:built --reporter=line,html
+      - name: Upload accessibility and interaction test report
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: playwright-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  ios-webkit:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v6.1.1
+        with:
+          cache: true
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install webkit
+      - run: pnpm build
+      - name: Test iPhone and iPad WebKit emulation and enhanced accessibility
+        env:
+          AG_REQUIRE_WEB_AUDIO: '1'
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/ios
+        run: pnpm test:ios --reporter=line,html
+      - name: Upload WebKit accessibility and interaction report
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: playwright-ios-results
+          path: |
+            playwright-report/
+            test-results/ios/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [test-and-build, ios-webkit]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
