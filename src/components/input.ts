@@ -16,19 +16,27 @@ defineFeedback('ag-input', host => {
     input.setAttribute('aria-describedby', [...descriptions].join(' '));
   }
   let lastReport = '';
+  let interacted = false;
   const report = (withSound = true) => {
     const valid = input.validity.valid;
     const message = !input.value ? (input.required ? 'A value is required' : 'Ready for input') : valid ? 'Value accepted' : input.validationMessage;
     const field = input.closest('ui-field');
     if (field) field.invalid = valid ? undefined : true;
-    input.setAttribute('aria-invalid', String(!valid));
+    if (valid) input.removeAttribute('aria-invalid');
+    else input.setAttribute('aria-invalid', 'true');
     if (lastReport === message) return;
     lastReport = message;
     host.report(message);
     if (withSound) void audio.play(valid ? 'select' : 'error');
   };
-  host.listen(input, 'change', () => report());
-  host.listen(input, 'blur', () => report());
-  host.listen(input, 'invalid', () => report());
-  host.listen(input, 'input', () => { if (lastReport && input.getAttribute('aria-invalid') === 'true') report(false); });
+  host.listen(input, 'change', () => { interacted = true; report(); });
+  host.listen(input, 'blur', () => {
+    if (!interacted && !input.required && !input.value) return;
+    report();
+  });
+  host.listen(input, 'invalid', () => { interacted = true; report(); });
+  host.listen(input, 'input', () => {
+    interacted = true;
+    if (lastReport && input.getAttribute('aria-invalid') === 'true') report(false);
+  });
 });

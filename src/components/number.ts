@@ -7,7 +7,10 @@ defineFeedback('ag-number', host => {
   if (!control) return;
   host.listen(control, 'valuechange', event => afterChange(event, () => {
     const value = event.detail.value;
-    host.report(value === null ? 'No value' : `Quantity: ${value}`);
+    const label = host.querySelector('ui-field-label')?.textContent?.trim()
+      || control.querySelector('input')?.getAttribute('aria-label')?.trim()
+      || 'Value';
+    host.report(value === null ? 'No value' : `${label}: ${value}`);
     if (value !== null) void audio.play('tick', valuePitch(value, Number(control.getAttribute('min') ?? 0), Number(control.getAttribute('max') ?? 100)));
   }));
 });

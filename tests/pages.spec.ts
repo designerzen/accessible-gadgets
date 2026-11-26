@@ -16,7 +16,23 @@ for (const component of componentPages) {
     await page.reload(); // Direct requests must resolve a real page after deployment.
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(component.title);
     await expect(page.locator('.widget-card')).toHaveCount(1);
+    await expect(page.getByRole('heading', { name: 'Usage & code' })).toBeVisible();
+    await expect(page.locator('.component-docs .code-block')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Things to check' })).toBeVisible();
+    const breakdownHeading = page.getByRole('heading', { name: 'Accessibility & inclusion considerations' });
+    await expect(breakdownHeading).toBeVisible();
+    const layoutOrder = await page.evaluate(() => {
+      const card = document.querySelector('.widget-card')!.getBoundingClientRect();
+      const docs = document.querySelector('.component-docs')!.getBoundingClientRect();
+      const checklist = document.querySelector('.test-checklist')!.getBoundingClientRect();
+      const breakdown = document.querySelector('.a11y-breakdown')!.getBoundingClientRect();
+      return {
+        belowCard: breakdown.top >= card.bottom - 1,
+        belowDocs: breakdown.top >= docs.bottom - 1,
+        belowChecklist: breakdown.top >= checklist.bottom - 1,
+      };
+    });
+    expect(layoutOrder).toEqual({ belowCard: true, belowDocs: true, belowChecklist: true });
     await assertEnhancedTargets(page);
     const results = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
     expect(results.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
@@ -43,7 +59,7 @@ for (const component of componentPages) {
         await expect(page.locator('[data-feedback]')).toHaveText('Daily selected');
         break;
       case 'select':
-        await page.getByRole('combobox').click();
+        await page.getByRole('combobox', { name: 'Your pace' }).click();
         await page.getByRole('option', { name: 'Take it slow' }).click();
         await expect(page.locator('[data-feedback]')).toHaveText('Take it slow selected');
         break;

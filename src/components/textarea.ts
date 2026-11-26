@@ -2,6 +2,8 @@ import '@ui-sdk/web/textarea';
 import { audio } from '../audio';
 import { defineFeedback } from './feedback';
 
+let nextFeedbackId = 0;
+
 defineFeedback('ag-textarea', host => {
   const textarea = host.querySelector('textarea');
   if (!textarea) return;
@@ -10,6 +12,10 @@ defineFeedback('ag-textarea', host => {
   if (count) {
     count.removeAttribute('role');
     count.setAttribute('aria-live', 'off');
+    count.id ||= `ag-textarea-feedback-${++nextFeedbackId}`;
+    const descriptions = new Set((textarea.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+    descriptions.add(count.id);
+    textarea.setAttribute('aria-describedby', [...descriptions].join(' '));
   }
   let announcement = host.querySelector<HTMLElement>('[data-count-announcement]');
   if (!announcement) {
@@ -22,7 +28,7 @@ defineFeedback('ag-textarea', host => {
   host.listen(textarea, 'input', () => {
     host.report(`${textarea.value.length}${textarea.maxLength >= 0 ? ` / ${textarea.maxLength}` : ''} characters`);
     // New-line and capacity cues avoid playing sound for every keystroke.
-    if (textarea.value.length === textarea.maxLength) {
+    if (textarea.maxLength > 0 && textarea.value.length === textarea.maxLength) {
       announcement.textContent = `Character limit reached: ${textarea.maxLength} characters.`;
       void audio.play('error');
     } else if (textarea.maxLength > 0 && textarea.maxLength - textarea.value.length === 20) {

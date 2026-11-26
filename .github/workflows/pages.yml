@@ -29,10 +29,12 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
+      - name: Run Vitest accessibility and inclusion suite
+        run: pnpm test:vitest
       - name: Test interactions, audio and accessibility
         env:
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/development
-        run: pnpm test --reporter=line,html
+        run: pnpm test:e2e --reporter=line,html
       - name: Build all pages
         run: pnpm build
       - name: Test built pages at the repository subpath

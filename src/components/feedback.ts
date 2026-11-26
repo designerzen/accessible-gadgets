@@ -1,12 +1,17 @@
 import { audio, pulse } from '../audio';
 
-export type FeedbackHost = HTMLElement & { listen: (target: EventTarget, event: string, handler: (event: any) => void, capture?: boolean) => void; report: (text: string) => void };
+export type FeedbackHost = HTMLElement & {
+  listen: (target: EventTarget, event: string, handler: (event: any) => void, capture?: boolean) => void;
+  report: (text: string) => void;
+  signal: AbortSignal;
+};
 
 /** Preserve native/SDK form and keyboard semantics; enhance through DOM events. */
 export function defineFeedback(tag: string, connect: (host: FeedbackHost) => void) {
   class FeedbackElement extends HTMLElement {
     private events?: AbortController;
     private status?: HTMLElement;
+    get signal() { return this.events!.signal; }
     connectedCallback() {
       this.events?.abort();
       this.events = new AbortController();

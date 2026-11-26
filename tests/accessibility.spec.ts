@@ -30,13 +30,13 @@ test('index and every test page reflow at 320 CSS pixels with increased text spa
 
 test('select popup and expanded disclosure pass WCAG 2.2 checks', async ({ page }) => {
   await page.goto('/components/select/');
-  await page.getByRole('combobox').focus();
+  await page.getByRole('combobox', { name: 'Your pace' }).focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('option').first()).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Take it slow' })).toBeVisible();
   const popup = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
   expect(popup.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('combobox')).toBeFocused();
+  await expect(page.getByRole('combobox', { name: 'Your pace' })).toBeFocused();
   await page.goto('/components/details/');
   await page.getByRole('button', { name: 'What makes these accessible?' }).press('Enter');
   const expanded = await new AxeBuilder({ page }).withTags(wcagTags).analyze();

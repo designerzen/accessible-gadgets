@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
-    "test": "playwright test",
+    "test": "vitest run && playwright test",
+    "test:vitest": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "test:built": "playwright test --config playwright.built.config.ts",
     "test:ios": "playwright test --config playwright.ios.config.ts"
   },
@@ -19,7 +22,11 @@
     "@axe-core/playwright": "^4.14.1",
     "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.7",
+    "@vitest/browser-playwright": "^5.1.1",
+    "axe-core": "^4.14.1",
+    "playwright": "^1.65.1",
     "typescript": "^7.0.2",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }

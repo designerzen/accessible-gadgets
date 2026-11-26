@@ -42,6 +42,10 @@ export class AccessibleSlider extends HTMLElement {
     this.slider.addEventListener('valuecommit', () => {
       this.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
     }, options);
+    this.addEventListener('focusin', (event: FocusEvent) => {
+      if (event.relatedTarget instanceof Node && this.contains(event.relatedTarget)) return;
+      void audio.play('focus');
+    }, options);
     this.minus.addEventListener('click', () => this.nudge(-1), options);
     this.plus.addEventListener('click', () => this.nudge(1), options);
     this.refresh();
@@ -59,7 +63,10 @@ export class AccessibleSlider extends HTMLElement {
     if (!this.built) { this.setAttribute('value', String(value)); return; }
     this.slider.api.setValue(value);
   }
-  private get formatted() { return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 8 }).format(this.current)}${this.getAttribute('unit') || ''}`; }
+  private formatValue(value: number) {
+    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 8 }).format(value)}${this.getAttribute('unit') || ''}`;
+  }
+  private get formatted() { return this.formatValue(this.current); }
 
   private build() {
     const id = `ag-slider-${++nextId}`;
@@ -97,7 +104,7 @@ export class AccessibleSlider extends HTMLElement {
       else this.slider.setAttribute(attribute, value);
     }
     this.querySelector('ui-field-label')!.textContent = this.label;
-    this.slider.format = value => `${value}${this.getAttribute('unit') || ''}`;
+    this.slider.format = value => this.formatValue(value);
     this.minus.setAttribute('aria-label', `Decrease ${this.label.toLowerCase()}`);
     this.plus.setAttribute('aria-label', `Increase ${this.label.toLowerCase()}`);
     this.querySelector('[data-min]')!.textContent = `${this.min}${this.getAttribute('unit') || ''}`;

@@ -2,13 +2,13 @@
 
 ## Target and current status
 
-The engineering target is **WCAG 2.2 Level AA with the enhanced AAA criteria listed below**, informed by Apple's iOS/iPadOS accessibility guidance, for the complete index and all 17 live component test pages in the default monochrome theme. This includes the applicable Level A and AA criteria from earlier WCAG versions. This document is a testing record, **not a conformance declaration or certification**. A passing automated build does not establish full WCAG conformance. No claim of universal accessibility or complete Level AAA conformance is made.
+The engineering target is **WCAG 2.2 Level AA with the enhanced AAA criteria listed below**, informed by Apple's iOS/iPadOS accessibility guidance, for the complete index and all 17 live component test pages across all five built-in OKLCH themes (`monochrome`, `ocean`, `forest`, `paper`, `high-contrast`) in Light, Dark, and System color modes. This includes the applicable Level A and AA criteria from earlier WCAG versions. This document is a testing record, **not a conformance declaration or certification**. A passing automated build does not establish full WCAG conformance. No claim of universal accessibility or complete Level AAA conformance is made.
 
 References: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [W3C guidance on evaluation tools and human judgment](https://www.w3.org/WAI/test-evaluate/tools/selecting/).
 
 ## Automated checks
 
-Run `pnpm test`, then `pnpm build`, `pnpm test:built`, and `pnpm test:ios`. GitHub Actions runs these checks and retains separate Playwright reports on successful and failed runs. axe scans use `wcag2a`, `wcag2aa`, `wcag21aa`, `wcag22aa`, `wcag2aaa` and best-practice rules without disabling individual rules. A violation fails the build. axe currently exposes its AAA rules under `wcag2aaa`; newer AAA focus and target criteria also need the explicit checks below.
+Run `pnpm test:vitest`, `pnpm test:e2e`, then `pnpm build`, `pnpm test:built`, and `pnpm test:ios` (or `pnpm test` to run Vitest and Playwright dev checks together). GitHub Actions runs these checks and retains separate Playwright reports on successful and failed runs. `pnpm test:vitest` runs component- and page-level accessibility and inclusion assertions in Chromium via `@vitest/browser-playwright` and `axe-core`, checking all 5 themes in both Light and Dark color modes, explicit vs. `prefers-color-scheme` mode precedence and persistence, landmark structure, heading hierarchy, ARIA IDREF integrity, 44×44px target sizes, non-text contrast, RTL layout, Label in Name, 320px reflow, and each component page's technical docs and accessibility considerations breakdown. axe scans use `wcag2a`, `wcag2aa`, `wcag21aa`, `wcag22aa`, `wcag2aaa` and best-practice rules without disabling individual rules. A violation fails the build. axe currently exposes its AAA rules under `wcag2aaa`; newer AAA focus and target criteria also need the explicit checks below.
 
 | Area | Evidence and implementation | Relevant criteria |
 | --- | --- | --- |

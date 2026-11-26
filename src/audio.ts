@@ -69,8 +69,11 @@ export const audio = new FeedbackAudio();
 window.addEventListener('pagehide', () => { void audio.dispose(); });
 
 export function pulse(element: HTMLElement) {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  element.getAnimations().forEach(animation => animation.cancel());
+  if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (typeof element.getAnimations === 'function') {
+    element.getAnimations().forEach(animation => animation.cancel());
+  }
+  if (typeof element.animate !== 'function') return;
   const style = getComputedStyle(element);
   const ring = style.getPropertyValue('--ag-feedback-ring').trim()
     || `color-mix(in oklch, ${style.getPropertyValue('--ag-accent').trim() || 'currentColor'} 45%, transparent)`;

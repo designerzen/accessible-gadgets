@@ -11,7 +11,9 @@ pnpm dev
 
 ```sh
 pnpm build        # Type-check and generate dist/
-pnpm test         # Chromium integration, audio rendering and accessibility checks
+pnpm test         # Vitest accessibility/inclusion suite + Playwright Chromium E2E suite
+pnpm test:vitest  # Vitest browser accessibility and inclusion tests across all 18 pages
+pnpm test:e2e     # Chromium integration, audio rendering and accessibility checks
 pnpm test:ios     # After building: iPhone/iPad WebKit emulation and enhanced checks
 ```
 
@@ -19,7 +21,7 @@ For a fresh Playwright installation, run `pnpm exec playwright install chromium 
 
 ## Live test pages and GitHub Pages
 
-The root index links to every test page and also contains all live examples. Dedicated pages live under `components/<name>/`, with one live example, a manual testing checklist, reset, and index/next navigation. There are 17 pages, including date/time and color variants of the input component. For example, open `/components/slider/` while running `pnpm dev`.
+The root index links to every test page and also contains all live examples with collapsible code snippets. Dedicated pages live under `components/<name>/`, with one live example, technical specs and copy-ready code under **Usage & code**, a manual testing checklist, reset, an **Accessibility & inclusion considerations** breakdown below the primary component information, and previous/index/next navigation. There are 17 pages, including date/time and color variants of the input component. For example, open `/components/slider/` while running `pnpm dev`.
 
 `pnpm build` emits the index and every component's `index.html` into `dist/`. Relative asset URLs and navigation support deployment under `/accessible-gadgets/` as well as a root domain. `pnpm test:built` tests the production output under the repository subpath after building, including links, direct reloads, interactions and automated accessibility checks on every page.
 
@@ -51,9 +53,9 @@ The collection includes 17 examples across 15 reusable custom elements. Each com
 
 `ag-input` supports native input types, including text, email, search, URL, telephone, date, time, and color. Date/time and color have separate examples. Static HTML elements such as paragraphs, headings and images retain their usual semantics and do not make sounds.
 
-## Shared theme tokens
+## Themes and color modes
 
-Every page and widget uses the shared custom properties in `src/theme.css`, imported by `src/style.css`. The default theme is black and white with neutral gray surfaces, borders and secondary text. All color tokens use OKLCH, including a zero-chroma black accent by default.
+Every page and widget uses the shared OKLCH custom properties in [`src/theme.css`](./src/theme.css) managed by [`src/theme.ts`](./src/theme.ts). Five built-in themes (**Monochrome**, **Ocean Blue**, **Forest Green**, **Warm Paper**, and **High Contrast**) and three color modes (**System**, **Light**, and **Dark**) can be switched directly from the preferences bar and persist in `localStorage` (`ag-theme`, `ag-color-mode`). Each theme is calibrated for WCAG 2.2 AAA (`>= 7:1`) text contrast and `>= 3:1` control boundary contrast in both light and dark modes.
 
 Override tokens after importing the stylesheet, either globally or on a widget's ancestor. Derived hover, soft-background, focus and feedback-ring colors follow the accent automatically through OKLCH color mixing.
 
@@ -152,7 +154,7 @@ The target is WCAG 2.2 AA plus selected AAA criteria and Apple's iOS/iPadOS acce
 - Sound starts **off**. The UI provides a sound toggle and independent cue-volume control. Preferences persist in local storage when available.
 - One shared button-synth instance creates its AudioContext on the first enabled interaction. Muting immediately silences active voices. The engine limits voice counts and cleans up finished nodes; page exit disposes the context.
 - All sound cues have a visible counterpart. Focus outlines, labels, textual states and live values remain usable without audio or local storage.
-- Text fields give a cue when a value is committed; textareas signal new lines and capacity rather than every keystroke. Password characters are never sonified or copied into status text.
+- Text fields give a cue when a value is committed; textareas signal new lines and capacity rather than every keystroke. Password characters are never sonified or copied into status text, and the visibility toggle keeps a stable accessible name with `aria-pressed`.
 - Textareas keep their visible count in real time while announcing it on blur or near/at capacity, rather than on every keystroke. Field errors are linked to their input and remain available when it is refocused.
 - Reduced motion disables visual pulses. Native input semantics and UI SDK keyboard, form, focus, and screen reader behavior are preserved. Automated tests supplement, rather than replace, assistive technology and listening checks.
 

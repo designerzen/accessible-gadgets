@@ -34,8 +34,8 @@ test('touch alternatives operate the slider, labels, switch and popup without a 
   await expect(page.getByRole('checkbox')).toBeChecked();
   await page.locator('ag-switch label').tap();
   await expect(page.getByRole('switch')).toBeChecked();
-  await page.getByRole('combobox').tap();
-  await expect(page.getByRole('option').first()).toBeVisible();
+  await page.getByRole('combobox', { name: 'Your pace' }).tap();
+  await expect(page.getByRole('option', { name: 'Full speed ahead' })).toBeVisible();
   await assertEnhancedTargets(page);
   await page.getByRole('option', { name: 'Full speed ahead' }).tap();
   await expect(page.locator('ag-select [data-feedback]')).toHaveText('Full speed ahead selected');

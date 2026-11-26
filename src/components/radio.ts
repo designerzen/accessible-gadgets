@@ -8,8 +8,9 @@ defineFeedback('ag-radio', host => {
   host.listen(group, 'valuechange', event => afterChange(event, () => {
     const radios = [...group.querySelectorAll('ui-radio')];
     const index = radios.findIndex(radio => radio.getAttribute('value') === event.detail.value);
-    const label = radios[index]?.closest('label')?.textContent?.trim() ?? 'No selection';
-    host.report(`${label} selected`);
-    void audio.play('tick', valuePitch(index, 0, radios.length - 1));
+    const label = index >= 0 ? radios[index]?.closest('label')?.textContent?.trim() : undefined;
+    host.report(label ? `${label} selected` : 'No selection');
+    if (index >= 0) void audio.play('tick', valuePitch(index, 0, radios.length - 1));
+    else void audio.play('off');
   }));
 });

@@ -30,11 +30,14 @@ test('text, numbers, textarea, password and disclosure expose their state', asyn
   await expect(page.locator('ag-textarea [data-feedback]')).toHaveText('5 / 200 characters');
   await page.getByRole('textbox', { name: 'A little note' }).press('Enter');
   await expect(page.locator('ag-textarea [data-feedback]')).toHaveText('6 / 200 characters');
+  await expect(page.getByRole('button', { name: 'Show password' })).toHaveAttribute('aria-pressed', 'false');
   await page.getByRole('button', { name: 'Show password' }).click();
   await expect(page.locator('ag-password input')).toHaveAttribute('type', 'text');
+  await expect(page.getByRole('button', { name: 'Show password' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('ag-password [data-feedback]')).toHaveText('Password visible');
-  await page.getByRole('button', { name: 'Hide password' }).click();
+  await page.getByRole('button', { name: 'Show password' }).click();
   await expect(page.locator('ag-password input')).toHaveAttribute('type', 'password');
+  await expect(page.getByRole('button', { name: 'Show password' })).toHaveAttribute('aria-pressed', 'false');
   await page.getByRole('button', { name: 'What makes these accessible?' }).click();
   await expect(page.locator('ui-collapsible-panel')).toBeVisible();
   await expect(page.locator('ag-details [data-feedback]')).toHaveText('Details expanded');
@@ -47,7 +50,7 @@ test('file acceptance, rejection and removal; progress, meter and native inputs'
   await (await chooserPromise).setFiles({ name: 'hello.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
   await expect(page.locator('ag-file [data-feedback]')).toHaveText('1 file selected');
   await expect(page.locator('[data-file="name"]')).toHaveText('hello.txt');
-  await page.getByRole('button', { name: 'Remove file' }).click();
+  await page.getByRole('button', { name: 'Remove hello.txt' }).click();
   await expect(page.locator('ag-file [data-feedback]')).toHaveText('0 files selected');
   const rejected = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Choose a file' }).click();
